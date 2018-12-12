@@ -65,6 +65,8 @@ class MLP():
         `batch_size` specifies number of examples per class to be used
         (5 classes with batch_size=2 gives mini-batch of size 10)
         """
+        if len(dataset[0][0]) != self._architecture[0]:
+            raise ValueError("Input dimensions don't correspond to input layer size")
         if opt_method not in SUPPORTED_OPT:
             raise ValueError("Optimization method must be one of: {}"
                     .format(SUPPORTED_OPT))
