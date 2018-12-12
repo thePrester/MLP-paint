@@ -5,7 +5,8 @@ import tkinter as tk
 import os
 
 CANVAS_HEIGHT = 500
-CANVAS_WIDTH = 700
+CANVAS_WIDTH = 550
+SUPPORTED_CLASSES = ['alpha', 'beta', 'gamma', 'delta', 'epsilon']
 
 class DatasetGUI():
     def __init__(self, master):
@@ -14,70 +15,77 @@ class DatasetGUI():
 
         self.points = list()
         self.model = None
+        self.selected_class = tk.StringVar()
+        self.selected_class.set('alpha')
 
         self.label = tk.Label(master, text="Press left-click and hold to draw")
         self.label.pack()
 
-        self.menu_frame = tk.Frame(master, width=CANVAS_WIDTH + 5, height=10)
-        self.menu_frame.pack(side=tk.BOTTOM)
+        self.main_frame = tk.Frame(master, width=CANVAS_WIDTH, height=CANVAS_HEIGHT)
+        self.main_frame.pack(side=tk.BOTTOM)
 
-        self.clear_button = tk.Button(self.menu_frame, text="Clear", command=self.clear)
+        self.clear_button = tk.Button(self.main_frame, text="Clear", command=self.clear)
         self.clear_button.grid(row=0, column=0)
 
-        self.close_button = tk.Button(self.menu_frame, text="Close", command=master.quit)
-        self.close_button.grid(row=0, column=1, padx=10)
+        self.close_button = tk.Button(self.main_frame, text="Close", command=master.quit)
+        self.close_button.grid(row=0, column=1)
 
-        self.save_button = tk.Button(self.menu_frame, text="Save", command=self.save_features)
-        self.save_button.grid(row=0, column=3, padx=10)
+        self.save_button = tk.Button(self.main_frame, text="Save", command=self.save_features)
+        self.save_button.grid(row=0, column=2)
 
-        self.predict_button = tk.Button(self.menu_frame, text="Predict", command=self.predict_handle)
-        self.predict_button.grid(row=2, column=4)
+        self.path_label = tk.Label(self.main_frame, text="File path:")
+        self.path_label.grid(row=0, column=3)
 
-        self.train_button = tk.Button(self.menu_frame, text="Train", command=self.train_handle)
-        self.train_button.grid(row=2, column=3)
+        self.path_entry = tk.Entry(self.main_frame)
+        self.path_entry.grid(row=0, column=4)
 
-        self.init_button = tk.Button(self.menu_frame, text="Init", command=self.init_handle)
-        self.init_button.grid(row=2, column=2)
+        self.m_label = tk.Label(self.main_frame, text="Number of points:")
+        self.m_label.grid(row=0, column=5)
 
-        self.save_location = tk.Entry(self.menu_frame)
-        self.save_location.bind("<FocusIn>", lambda event: self.save_location.delete(0, 'end'))
-        self.save_location.insert(0, "enter file location...")
-        self.save_location.grid(row=0, column=2)
+        self.m_entry = tk.Entry(self.main_frame)
+        self.m_entry.grid(row=0, column=6)
 
-        self.m_entry = tk.Entry(self.menu_frame)
-        self.m_entry.bind("<FocusIn>", lambda event: self.m_entry.delete(0, 'end'))
-        self.m_entry.insert(0, 'M')
-        self.m_entry.grid(row=0, column=4)
+        self.class_dropdown = tk.OptionMenu(self.main_frame, self.selected_class, *SUPPORTED_CLASSES)
+        self.class_dropdown.grid(row=0, column=7)
 
-        self.class_entry = tk.Entry(self.menu_frame)
-        self.class_entry.bind("<FocusIn>", lambda event: self.class_entry.delete(0, 'end'))
-        self.class_entry.insert(0, 'class (1-5)')
-        self.class_entry.grid(row=0, column=5)
+        self.opt_label = tk.Label(self.main_frame, text="Optimization method:")
+        self.opt_label.grid(row=1, column=0)
 
-        self.opt_entry = tk.Entry(self.menu_frame)
-        self.opt_entry.bind("<FocusIn>", lambda event: self.opt_entry.delete(0, 'end'))
-        self.opt_entry.insert(0, "enter optimization method")
+        self.opt_entry = tk.Entry(self.main_frame)
         self.opt_entry.grid(row=1, column=1)
 
-        self.epochs_entry = tk.Entry(self.menu_frame)
-        self.epochs_entry.bind("<FocusIn>", lambda event: self.epochs_entry.delete(0, 'end'))
-        self.epochs_entry.insert(0, "enter number of epochs")
-        self.epochs_entry.grid(row=1, column=2)
+        self.epochs_label = tk.Label(self.main_frame, text="Number of epochs:")
+        self.epochs_label.grid(row=1, column=2)
 
-        self.b_size_entry = tk.Entry(self.menu_frame)
-        self.b_size_entry.bind("<FocusIn>", lambda event: self.b_size_entry.delete(0, 'end'))
-        self.b_size_entry.insert(0, "enter batch size")
-        self.b_size_entry.grid(row=1, column=3)
+        self.epochs_entry = tk.Entry(self.main_frame)
+        self.epochs_entry.grid(row=1, column=3)
 
-        self.lr_entry = tk.Entry(self.menu_frame)
-        self.lr_entry.bind("<FocusIn>", lambda event: self.lr_entry.delete(0, 'end'))
-        self.lr_entry.insert(0, "enter learning rate")
-        self.lr_entry.grid(row=1, column=4)
+        self.batch_label = tk.Label(self.main_frame, text="Batch size:")
+        self.batch_label.grid(row=1, column=4)
 
-        self.architecture_entry = tk.Entry(self.menu_frame)
-        self.architecture_entry.bind("<FocusIn>", lambda event: self.architecture_entry.delete(0, 'end'))
-        self.architecture_entry.insert(0, "enter architecture (ints separated by comma)")
-        self.architecture_entry.grid(row=1, column=5)
+        self.batch_entry = tk.Entry(self.main_frame)
+        self.batch_entry.grid(row=1, column=5)
+
+        self.lr_label = tk.Label(self.main_frame, text="Learning rate:")
+        self.lr_label.grid(row=1, column=6)
+
+        self.lr_entry = tk.Entry(self.main_frame)
+        self.lr_entry.grid(row=1, column=7)
+
+        self.architecture_label = tk.Label(self.main_frame, text="Architecture:")
+        self.architecture_label.grid(row=1, column=8)
+
+        self.architecture_entry = tk.Entry(self.main_frame)
+        self.architecture_entry.grid(row=1, column=9)
+
+        self.predict_button = tk.Button(self.main_frame, text="Predict", command=self.predict_handle)
+        self.predict_button.grid(row=2, column=4)
+
+        self.train_button = tk.Button(self.main_frame, text="Train", command=self.train_handle)
+        self.train_button.grid(row=2, column=3)
+
+        self.init_button = tk.Button(self.main_frame, text="Init", command=self.init_handle)
+        self.init_button.grid(row=2, column=2)
 
         self.drawing_canvas = tk.Canvas(master, width=CANVAS_WIDTH, height=CANVAS_HEIGHT)
         self.drawing_canvas.configure(background="white")
@@ -95,12 +103,12 @@ class DatasetGUI():
             messagebox.showinfo(title="Model not initialized", message="Model must be initialized first")
             return
         try:
-            dataset_path = self.save_location.get()
+            dataset_path = self.path_entry.get()
             with open(dataset_path) as fp:
                 dataset = [(np.array(line.split(';')[0].split(','), dtype=np.float64),
                         np.array(line.split(';')[1].split(','), dtype=np.float64)) for line in fp.readlines()]
             opt_method = self.opt_entry.get()
-            batch_size = int(self.b_size_entry.get())
+            batch_size = int(self.batch_entry.get())
             lr = float(self.lr_entry.get())
             epochs = int(self.epochs_entry.get())
             self.model.fit(dataset, opt_method, batch_size, lr=lr, epochs=epochs)
@@ -133,13 +141,11 @@ class DatasetGUI():
             return
 
     def save_features(self):
-        filepath = self.save_location.get()
+        filepath = self.path_entry.get()
         try:
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
             M = int(self.m_entry.get())
-            data_class = int(self.class_entry.get())
-            if data_class < 1 or data_class > 5:
-                raise ValueError
+            data_class = self.selected_class.get()
             result = ut.calculate_features(self.points, M)
             with open(filepath, 'a') as fp:
                 entry_str = ','.join([str(r) for r in result]) + ';' + \
